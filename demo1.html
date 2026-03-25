@@ -1,145 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tailwind Snake</title>
+    <title>Tailwind 基礎：旅遊網站 Hero</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-900 h-screen flex flex-col items-center justify-center font-sans text-white overflow-hidden">
 
-    <div class="text-center mb-6">
-        <h1 class="text-5xl font-extrabold text-emerald-400 drop-shadow-md">SNAKE</h1>
-        <p class="text-slate-400 mt-2">Score: <span id="score" class="text-white font-mono text-2xl">0</span></p>
+<body class="bg-gray-100 font-sans">
+
+    <!-- Section: Colors, Text, Spacing -->
+    <section class="bg-blue-600 text-white p-12 text-center">
+        <h1 class="text-4xl font-bold mb-4">探索未知的世界</h1>
+        <p class="text-xl opacity-90 mb-8">尋找您的下一個冒險目的地，開啟難忘的旅程。</p>
+        <a href="#" class="bg-white text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-blue-50 transition">
+            立即開始
+        </a>
+    </section>
+
+    <div class="max-w-4xl mx-auto p-8">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-6">本單元觀念</h2>
+        <ul class="space-y-4">
+            <li class="flex items-start">
+                <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-mono mr-3">bg-blue-600</span>
+                <span>背景顏色：藍色 (強度 600)</span>
+            </li>
+            <li class="flex items-start">
+                <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-mono mr-3">text-4xl</span>
+                <span>字體大小：非常大</span>
+            </li>
+            <li class="flex items-start">
+                <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-mono mr-3">p-12</span>
+                <span>內距 (Padding)：上下左右 3rem</span>
+            </li>
+            <li class="flex items-start">
+                <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-mono mr-3">mb-4</span>
+                <span>外距 (Margin-Bottom)：下方留白 1rem</span>
+            </li>
+        </ul>
     </div>
 
-    <div class="relative p-2 bg-slate-800 rounded-xl shadow-2xl border-4 border-slate-700">
-        <canvas id="gameCanvas" width="400" height="400" class="bg-slate-950 rounded-sm"></canvas>
-        
-        <div id="gameOver" class="hidden absolute inset-0 bg-slate-900/80 flex flex-col items-center justify-center rounded-lg backdrop-blur-sm">
-            <h2 class="text-3xl font-bold text-red-500 mb-4">GAME OVER</h2>
-            <button onclick="resetGame()" class="px-6 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold rounded-full transition-all active:scale-95">
-                Play Again
-            </button>
-        </div>
-    </div>
-
-    <div class="mt-8 text-slate-500 text-sm flex gap-4">
-        <span class="px-2 py-1 bg-slate-800 rounded">Arrows to Move</span>
-        <span class="px-2 py-1 bg-slate-800 rounded">Don't hit the walls!</span>
-    </div>
-
-    <script>
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-        const scoreElement = document.getElementById("score");
-        const gameOverScreen = document.getElementById("gameOver");
-
-        const gridSize = 20;
-        const tileCount = canvas.width / gridSize;
-
-        let score = 0;
-        let dx = 0;
-        let dy = 0;
-        let snake = [{x: 10, y: 10}];
-        let food = {x: 5, y: 5};
-        let gameSpeed = 100;
-        let gameStarted = false;
-
-        function drawGame() {
-            updateSnake();
-            if (checkGameOver()) return;
-
-            clearCanvas();
-            drawFood();
-            drawSnake();
-            
-            setTimeout(drawGame, gameSpeed);
-        }
-
-        function clearCanvas() {
-            ctx.fillStyle = "#020617"; // slate-950
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
-
-        function drawSnake() {
-            snake.forEach((part, index) => {
-                ctx.fillStyle = index === 0 ? "#34d399" : "#059669"; // Emerald 400 for head
-                ctx.fillRect(part.x * gridSize, part.y * gridSize, gridSize - 2, gridSize - 2);
-            });
-        }
-
-        function updateSnake() {
-            if (!gameStarted) return;
-
-            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
-            snake.unshift(head);
-
-            if (head.x === food.x && head.y === food.y) {
-                score += 10;
-                scoreElement.innerHTML = score;
-                createFood();
-                gameSpeed = Math.max(50, gameSpeed - 1); // Speed up slightly
-            } else {
-                snake.pop();
-            }
-        }
-
-        function createFood() {
-            food = {
-                x: Math.floor(Math.random() * tileCount),
-                y: Math.floor(Math.random() * tileCount)
-            };
-            // Make sure food doesn't spawn on snake body
-            if (snake.some(part => part.x === food.x && part.y === food.y)) createFood();
-        }
-
-        function drawFood() {
-            ctx.fillStyle = "#f43f5e"; // Rose 500
-            ctx.beginPath();
-            ctx.arc(food.x * gridSize + gridSize/2, food.y * gridSize + gridSize/2, gridSize/2 - 2, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        function checkGameOver() {
-            if (!gameStarted) return false;
-
-            const head = snake[0];
-            const hitWall = head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount;
-            const hitSelf = snake.slice(1).some(part => part.x === head.x && part.y === head.y);
-
-            if (hitWall || hitSelf) {
-                gameOverScreen.classList.remove("hidden");
-                return true;
-            }
-            return false;
-        }
-
-        function resetGame() {
-            score = 0;
-            scoreElement.innerHTML = score;
-            snake = [{x: 10, y: 10}];
-            dx = 0;
-            dy = 0;
-            gameSpeed = 100;
-            gameStarted = false;
-            gameOverScreen.classList.add("hidden");
-            createFood();
-            drawGame();
-        }
-
-        window.addEventListener("keydown", e => {
-            gameStarted = true;
-            switch(e.key) {
-                case "ArrowUp": if (dy !== 1) { dx = 0; dy = -1; } break;
-                case "ArrowDown": if (dy !== -1) { dx = 0; dy = 1; } break;
-                case "ArrowLeft": if (dx !== 1) { dx = -1; dy = 0; } break;
-                case "ArrowRight": if (dx !== -1) { dx = 1; dy = 0; } break;
-            }
-        });
-
-        createFood();
-        drawGame();
-    </script>
 </body>
+
 </html>
